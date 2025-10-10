@@ -1,4 +1,4 @@
-import { BarChart3, Users, Calendar, Dumbbell, TrendingUp } from 'lucide-react'
+import { BarChart3, Users, Calendar, Dumbbell, TrendingUp, Settings } from 'lucide-react'
 
 export interface NavigationItem {
   name: string
@@ -37,5 +37,11 @@ export const navigationItems: NavigationItem[] = [
     href: '/progress', 
     icon: TrendingUp,
     description: 'Track client progress'
+  },
+  { 
+    name: 'Settings', 
+    href: '/settings', 
+    icon: Settings,
+    description: 'Account and preferences'
   },
 ]
