@@ -36,6 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setOnboardingCompleted(false)
           return
         }
+        
+        // Handle RLS policy errors or other database issues
+        if (error.code === '42P17' || error.message?.includes('infinite recursion')) {
+          console.log('RLS policy issue detected, assuming user needs onboarding')
+          setOnboardingCompleted(false)
+          return
+        }
+        
         console.error('Error checking onboarding status:', error)
         setOnboardingCompleted(false)
         return
@@ -43,7 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setOnboardingCompleted(data?.onboarding_completed ?? false)
     } catch (error) {
-      console.error('Error checking onboarding status:', error)
+      // Handle any unexpected errors
+      console.error('Unexpected error checking onboarding status:', error)
       setOnboardingCompleted(false)
     }
   }, [supabase])

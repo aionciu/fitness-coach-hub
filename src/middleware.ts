@@ -69,6 +69,10 @@ export async function middleware(request: NextRequest) {
         // If user doesn't exist in our database yet, they need onboarding
         if (error.code === 'PGRST116') {
           onboardingCompleted = false
+        } else if (error.code === '42P17' || error.message?.includes('infinite recursion')) {
+          // Handle RLS policy errors
+          console.log('RLS policy issue detected in middleware, assuming user needs onboarding')
+          onboardingCompleted = false
         } else {
           console.error('Error checking onboarding status:', error)
           onboardingCompleted = false

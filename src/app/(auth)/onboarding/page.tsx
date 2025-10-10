@@ -2,68 +2,102 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { 
+  StepFlow, 
+  StepIndicator, 
+  StepNavigation, 
+  StepContent, 
+  useStepFlow 
+} from '@/components/ui/step-flow'
 import { createClientClient } from '@/lib/supabase'
 import { useAuth } from '@/contexts/auth-context'
-import { User, Building2, CheckCircle, ArrowRight, ArrowLeft, Sparkles, Target, Users } from 'lucide-react'
+import { User, Building2, Sparkles, Target, Users, FileText } from 'lucide-react'
 
 export default function OnboardingPage() {
-  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     fullName: '',
     tenantName: '',
+    acceptedTerms: false,
   })
   const router = useRouter()
   const supabase = createClientClient()
   const { user } = useAuth()
 
-  const totalSteps = 2
+  const steps = [
+    {
+      id: 'personal',
+      title: 'Personal Information',
+      description: 'Tell us about yourself'
+    },
+    {
+      id: 'business',
+      title: 'Business Setup',
+      description: 'Create your coaching brand'
+    },
+    {
+      id: 'terms',
+      title: 'Terms & Conditions',
+      description: 'Review and accept our terms'
+    }
+  ]
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleNext = () => {
-    if (step === 1 && formData.fullName.trim()) {
-      setStep(2)
-    }
-  }
-
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1)
+    const { currentStep } = useStepFlow()
+    if (currentStep === 0 && formData.fullName.trim()) {
+      // Move to next step
+    } else if (currentStep === 1 && formData.tenantName.trim()) {
+      // Move to next step
+    } else if (currentStep === 2 && formData.acceptedTerms) {
+      handleComplete()
     }
   }
 
   const handleComplete = async () => {
-    if (!user || !formData.fullName.trim() || !formData.tenantName.trim()) {
+    if (!user || !formData.fullName.trim() || !formData.tenantName.trim() || !formData.acceptedTerms) {
       return
     }
 
     setLoading(true)
     try {
+      console.log('Starting onboarding completion...')
+      console.log('User:', user?.id, 'Email:', user?.email)
+      console.log('Form data:', formData)
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      
       // Create tenant
+      const tenantData = {
+        name: formData.tenantName,
+        color_theme: '#0070f3',
+      }
+      console.log('Creating tenant with data:', tenantData)
+      
       const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
-        .insert({
-          name: formData.tenantName,
-          color_theme: '#0070f3',
-        })
+        .insert(tenantData)
         .select()
         .single()
 
       if (tenantError) {
         console.error('Error creating tenant:', tenantError)
+        console.error('Full error object:', JSON.stringify(tenantError, null, 2))
+        console.error('Error details:', tenantError.details, 'Error hint:', tenantError.hint, 'Error code:', tenantError.code)
+        alert('Error creating tenant: ' + (tenantError.message || 'Unknown error'))
         return
       }
 
       // Update user with tenant and onboarding completion
       const { error: userError } = await supabase
         .from('users')
-        .insert({
+        .upsert({
           id: user.id,
           tenant_id: tenant.id,
           email: user.email!,
@@ -74,6 +108,7 @@ export default function OnboardingPage() {
 
       if (userError) {
         console.error('Error updating user:', userError)
+        alert('Error updating user: ' + userError.message)
         return
       }
 
@@ -81,56 +116,16 @@ export default function OnboardingPage() {
       router.push('/dashboard')
     } catch (error) {
       console.error('Error completing onboarding:', error)
+      alert('Error completing onboarding: ' + (error as Error).message)
     } finally {
       setLoading(false)
     }
   }
 
-  const StepIndicator = () => (
-    <div className="flex items-center justify-center mb-6">
-      {Array.from({ length: totalSteps }, (_, i) => (
-        <div key={i} className="flex items-center">
-          <div className="relative">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                i + 1 <= step
-                  ? 'bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] text-white shadow-lg shadow-[#0070f3]/25'
-                  : 'bg-[#2A2A2D] text-[#A1A1AA] border border-[#3A3A3D]'
-              }`}
-            >
-              {i + 1 < step ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                i + 1
-              )}
-            </div>
-            {i + 1 === step && (
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] rounded-full opacity-20 animate-pulse"></div>
-            )}
-          </div>
-          {i < totalSteps - 1 && (
-            <div
-              className={`w-8 h-0.5 mx-3 rounded-full transition-all duration-300 ${
-                i + 1 < step 
-                  ? 'bg-gradient-to-r from-[#0070f3] to-[#7e3ff2]' 
-                  : 'bg-[#2A2A2D]'
-              }`}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  )
-
   const WelcomeSection = () => (
-    <div className="text-center mb-6">
-      <div className="relative inline-block mb-4">
-        <div className="w-14 h-14 bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-[#0070f3]/25">
-          <Sparkles className="w-5 h-5 text-white" />
-        </div>
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#ff6b6b] to-[#ffa500] rounded-full flex items-center justify-center">
-          <span className="text-xs font-bold text-white">✨</span>
-        </div>
+    <div className="text-center mb-4">
+      <div className="w-12 h-12 bg-[#0070f3] rounded-xl flex items-center justify-center mx-auto mb-3">
+        <Sparkles className="w-5 h-5 text-white" />
       </div>
       
       <h1 className="text-xl font-bold text-white mb-2">
@@ -142,19 +137,27 @@ export default function OnboardingPage() {
     </div>
   )
 
-  const StepContent = () => {
-    if (step === 1) {
-      return (
-        <div className="space-y-6">
-          <div className="text-center">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#0070f3]/25">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            <h2 className="text-lg font-bold text-white mb-1">Personal Information</h2>
-            <p className="text-[#A1A1AA] text-xs">Tell us about yourself</p>
+  const PersonalInfoStep = () => {
+    const { nextStep } = useStepFlow()
+    
+    const handleContinue = () => {
+      if (formData.fullName.trim()) {
+        nextStep()
+      }
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="w-10 h-10 bg-[#0070f3] rounded-xl flex items-center justify-center mx-auto mb-3">
+            <User className="w-5 h-5 text-white" />
           </div>
-          
-          <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-white mb-1">Personal Information</h2>
+          <p className="text-sm text-[#A1A1AA]">Tell us about yourself</p>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="space-y-3">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-white mb-2">
                 What&apos;s your full name?
@@ -169,7 +172,7 @@ export default function OnboardingPage() {
               />
             </div>
             
-            <div className="bg-[#1A1A1D] border border-[#2A2A2D] rounded-xl p-3">
+            <div className="bg-[#1A1A1D] border border-[#2A2A2D] rounded-xl p-4">
               <div className="flex items-start space-x-2">
                 <Target className="w-4 h-4 text-[#0070f3] mt-0.5 flex-shrink-0" />
                 <div>
@@ -181,33 +184,32 @@ export default function OnboardingPage() {
               </div>
             </div>
           </div>
-
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={handleNext}
-              disabled={!formData.fullName.trim()}
-              className="h-10 px-5 bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] hover:from-[#0051a2] hover:to-[#5a2a9a] text-white font-semibold rounded-xl shadow-lg shadow-[#0070f3]/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            >
-              Continue
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
         </div>
-      )
-    }
 
-    if (step === 2) {
-      return (
-        <div className="space-y-6">
-          <div className="text-center">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#7e3ff2] to-[#ff6b6b] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#7e3ff2]/25">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <h2 className="text-lg font-bold text-white mb-1">Business Setup</h2>
-            <p className="text-[#A1A1AA] text-xs">Create your coaching brand</p>
+        <StepNavigation
+          showBack={false}
+          nextDisabled={!formData.fullName.trim()}
+          onNext={handleContinue}
+        />
+      </div>
+    )
+  }
+
+  const BusinessSetupStep = () => {
+    const { prevStep } = useStepFlow()
+    
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="w-10 h-10 bg-[#7e3ff2] rounded-xl flex items-center justify-center mx-auto mb-3">
+            <Building2 className="w-5 h-5 text-white" />
           </div>
-          
-          <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-white mb-1">Business Setup</h2>
+          <p className="text-sm text-[#A1A1AA]">Create your coaching brand</p>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="space-y-3">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-white mb-2">
                 What&apos;s your business or studio name?
@@ -222,7 +224,7 @@ export default function OnboardingPage() {
               />
             </div>
             
-            <div className="bg-[#1A1A1D] border border-[#2A2A2D] rounded-xl p-3">
+            <div className="bg-[#1A1A1D] border border-[#2A2A2D] rounded-xl p-4">
               <div className="flex items-start space-x-2">
                 <Users className="w-4 h-4 text-[#7e3ff2] mt-0.5 flex-shrink-0" />
                 <div>
@@ -234,54 +236,110 @@ export default function OnboardingPage() {
               </div>
             </div>
           </div>
-
-          <div className="flex justify-between pt-2">
-            <Button
-              onClick={handleBack}
-              variant="outline"
-              className="h-10 px-4 border-[#3A3A3D] text-[#A1A1AA] hover:text-white hover:border-[#0070f3] rounded-xl text-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back
-            </Button>
-            <Button
-              onClick={handleComplete}
-              disabled={!formData.tenantName.trim() || loading}
-              className="h-10 px-5 bg-gradient-to-r from-[#0070f3] to-[#7e3ff2] hover:from-[#0051a2] hover:to-[#5a2a9a] text-white font-semibold rounded-xl shadow-lg shadow-[#0070f3]/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                  Setting up...
-                </>
-              ) : (
-                <>
-                  Complete Setup
-                  <CheckCircle className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
         </div>
-      )
-    }
 
-    return null
+        <StepNavigation
+          nextDisabled={!formData.tenantName.trim()}
+        />
+      </div>
+    )
+  }
+
+  const TermsStep = () => {
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="w-10 h-10 bg-[#ff6b6b] rounded-xl flex items-center justify-center mx-auto mb-3">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-lg font-semibold text-white mb-1">Terms & Conditions</h2>
+          <p className="text-sm text-[#A1A1AA]">Review and accept our terms</p>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-[#1A1A1D] border border-[#2A2A2D] rounded-xl p-4 max-h-48 overflow-y-auto">
+              <div className="space-y-3 text-xs text-[#A1A1AA] leading-relaxed">
+                <p>
+                  <strong className="text-white">1. Service Agreement</strong><br />
+                  By using Fitness Coach Hub, you agree to provide accurate information and use the platform responsibly for fitness coaching purposes only.
+                </p>
+                
+                <p>
+                  <strong className="text-white">2. Data Privacy</strong><br />
+                  We protect your client data with industry-standard security measures. You are responsible for maintaining client confidentiality.
+                </p>
+                
+                <p>
+                  <strong className="text-white">3. Payment Terms</strong><br />
+                  Subscription fees are billed monthly. You can cancel anytime. Refunds are processed within 30 days of cancellation.
+                </p>
+                
+                <p>
+                  <strong className="text-white">4. Liability</strong><br />
+                  Fitness Coach Hub is a tool to assist your coaching business. You remain responsible for the safety and effectiveness of your training programs.
+                </p>
+                
+                <p>
+                  <strong className="text-white">5. Account Termination</strong><br />
+                  We reserve the right to suspend accounts that violate these terms or engage in fraudulent activity.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="terms"
+                checked={formData.acceptedTerms}
+                onCheckedChange={(checked) => handleInputChange('acceptedTerms', checked as boolean)}
+                className="mt-1"
+              />
+              <label htmlFor="terms" className="text-sm text-[#A1A1AA] leading-relaxed cursor-pointer">
+                I have read and agree to the Terms & Conditions and Privacy Policy. I understand my responsibilities as a fitness coach.
+              </label>
+            </div>
+        </div>
+
+        <StepNavigation
+          nextDisabled={!formData.acceptedTerms || loading}
+          loading={loading}
+          onComplete={handleComplete}
+        />
+      </div>
+    )
+  }
+
+  const OnboardingContent = () => {
+    const { currentStep } = useStepFlow()
+    
+    return (
+      <div className="space-y-6">
+        {currentStep === 0 && <PersonalInfoStep />}
+        {currentStep === 1 && <BusinessSetupStep />}
+        {currentStep === 2 && <TermsStep />}
+      </div>
+    )
   }
 
   return (
     <div className="h-screen flex flex-col justify-center p-4">
       <div className="w-full max-w-lg mx-auto">
-        <Card className="bg-[#0E0E10] border-[#1A1A1D] shadow-2xl shadow-black/50">
-          <CardHeader className="pb-6">
-            <WelcomeSection />
-            <StepIndicator />
-          </CardHeader>
-
-          <CardContent className="px-6 pb-6">
-            <StepContent />
-          </CardContent>
-        </Card>
+        <StepFlow
+          steps={steps}
+          onComplete={handleComplete}
+        >
+          {/* Welcome Section - Outside Card */}
+          <WelcomeSection />
+          
+          {/* Step Indicator - Outside Card */}
+          <StepIndicator className="mb-4" />
+          
+          {/* Form Card */}
+          <Card className="bg-[#0E0E10] border-[#1A1A1D] shadow-2xl shadow-black/50">
+            <CardContent className="px-6 py-6">
+              <OnboardingContent />
+            </CardContent>
+          </Card>
+        </StepFlow>
         
         {/* Background decoration */}
         <div className="fixed inset-0 -z-10 overflow-hidden">
