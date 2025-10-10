@@ -6,7 +6,15 @@ import { Users, Dumbbell, TrendingUp, BarChart3, Calendar } from 'lucide-react'
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:mt-4">
+      {/* Welcome Section - Desktop Only */}
+      <div className="hidden lg:block">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-white">Welcome back!</h2>
+          <p className="text-[#A1A1AA] mt-1">Here&apos;s your day at a glance</p>
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-[#1A1A1D] border-[#2A2A2D]">

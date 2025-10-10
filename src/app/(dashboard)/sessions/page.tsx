@@ -4,7 +4,7 @@ import { Calendar, Plus } from 'lucide-react'
 
 export default function SessionsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:mt-4">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
