@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClientClient } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
   const supabase = createClientClient()
 
   useEffect(() => {
@@ -32,14 +34,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setUser(session?.user ?? null)
         setLoading(false)
+        
+        // Redirect to login if user signs out
+        if (event === 'SIGNED_OUT') {
+          router.push('/login')
+        }
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase.auth, router])
 
   const signOut = async () => {
     await supabase.auth.signOut()
+    // The redirect will be handled by the auth state change listener
   }
 
   const value = {
