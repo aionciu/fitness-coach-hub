@@ -1,37 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️‍♂️ Fitness Coach Hub – Developer Documentation
 
-## Getting Started
+A modern, mobile-first SaaS platform for **independent fitness coaches** and **small coaching groups**.  
+It enables coaches to manage clients, sessions, workouts, and progress — all in one energetic dashboard.
 
-First, run the development server:
+---
+
+## 🚀 Tech Stack
+
+- **Framework:** Next.js v15.5.4 (App Router, TypeScript, `/src` directory)
+- **Database:** Supabase (Postgres + RLS)
+- **Auth:** Supabase Auth (email, magic link, OAuth)
+- **UI Library:** shadcn/ui + Tailwind CSS
+- **State Management:** Zustand (local) + React Query (async data)
+- **Animations:** Framer Motion
+- **Charts:** Recharts
+- **Package Manager:** pnpm
+- **Deployment:** Vercel + Supabase Hosting
+
+---
+
+## 📂 Folder Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# fitness-coach-hub
+src/
+├── app/
+│   ├── (auth)/
+│   ├── (dashboard)/
+│   └── layout.tsx
+├── components/
+├── lib/
+├── hooks/
+├── providers/
+├── styles/
+└── docs-v2/
