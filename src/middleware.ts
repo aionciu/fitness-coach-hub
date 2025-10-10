@@ -35,11 +35,13 @@ export async function middleware(request: NextRequest) {
 
   // Define protected routes
   const protectedRoutes = ['/dashboard', '/clients', '/sessions', '/workouts', '/progress']
-  const authRoutes = ['/login', '/onboarding']
+  const authRoutes = ['/login']
+  const onboardingRoute = '/onboarding'
 
   // Check if the current path is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+  const isOnboardingRoute = pathname.startsWith(onboardingRoute)
 
   // Get the current user
   const { data: { user } } = await supabase.auth.getUser()
@@ -52,11 +54,58 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (isAuthRoute && user) {
-    // Redirect to dashboard if trying to access auth routes while logged in
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  // If user is authenticated, check onboarding status
+  if (user) {
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .single()
+
+      let onboardingCompleted = false
+
+      if (error) {
+        // If user doesn't exist in our database yet, they need onboarding
+        if (error.code === 'PGRST116') {
+          onboardingCompleted = false
+        } else {
+          console.error('Error checking onboarding status:', error)
+          onboardingCompleted = false
+        }
+      } else {
+        onboardingCompleted = userData?.onboarding_completed ?? false
+      }
+
+      // Redirect to onboarding if not completed and not already on onboarding page
+      if (!onboardingCompleted && !isOnboardingRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/onboarding'
+        return NextResponse.redirect(url)
+      }
+
+      // Redirect to dashboard if onboarding is completed and on onboarding page
+      if (onboardingCompleted && isOnboardingRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+
+      // Redirect to dashboard if accessing auth routes while authenticated and onboarded
+      if (isAuthRoute && onboardingCompleted) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error)
+      // If there's an error, redirect to onboarding to be safe
+      if (!isOnboardingRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/onboarding'
+        return NextResponse.redirect(url)
+      }
+    }
   }
 
   return supabaseResponse
