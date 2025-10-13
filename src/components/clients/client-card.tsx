@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar } from '@/components/ui/avatar'
+import Image from 'next/image'
 import { 
   MoreVertical, 
   Phone, 
@@ -26,7 +27,7 @@ interface ClientCardProps {
   isUpdating?: boolean
 }
 
-export function ClientCard({ client, onEdit, onDelete, onToggleActive, isUpdating = false }: ClientCardProps) {
+export function ClientCard({ client, onEdit, onDelete, onToggleActive }: ClientCardProps) {
   const [showActions, setShowActions] = useState(false)
   const actionsRef = useRef<HTMLDivElement>(null)
 
@@ -136,10 +137,11 @@ export function ClientCard({ client, onEdit, onDelete, onToggleActive, isUpdatin
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300" />
               <Avatar className="relative w-12 h-12 sm:w-14 sm:h-14 ring-2 ring-white/10 group-hover:ring-white/20 transition-all duration-300 group-hover:scale-105">
                 {client.avatar_url ? (
-                  <img 
+                  <Image 
                     src={client.avatar_url} 
                     alt={`${client.first_name} ${client.last_name}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">

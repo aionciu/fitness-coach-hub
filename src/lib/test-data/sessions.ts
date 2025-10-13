@@ -53,7 +53,7 @@ export const mockSessions: Session[] = [
       phone: '+1234567891',
       avatar_url: null
     },
-    workout: null
+    workout: undefined
   },
   {
     id: '3',
@@ -107,7 +107,7 @@ export const mockSessions: Session[] = [
       phone: '+1234567890',
       avatar_url: null
     },
-    workout: null
+    workout: undefined
   }
 ]
 

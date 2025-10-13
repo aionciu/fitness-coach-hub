@@ -4,8 +4,7 @@ import {
   CreateSessionData, 
   UpdateSessionData, 
   SessionStats, 
-  SessionFilters,
-  SessionExercise 
+  SessionFilters
 } from '@/lib/types/session'
 
 export class SessionAPI {

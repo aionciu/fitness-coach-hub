@@ -155,9 +155,6 @@ export function SessionFormModal({
     setShowWorkoutDropdown(false)
   }
 
-  const selectedClient = clients.find(c => c.id === formData.client_id)
-  const selectedWorkout = workouts.find(w => w.id === formData.workout_id)
-
   if (!isOpen) return null
 
   return (

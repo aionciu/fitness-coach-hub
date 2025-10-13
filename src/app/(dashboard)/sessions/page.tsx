@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { SessionsList, SessionFormModal } from '@/components/sessions'
 import { sessionAPI } from '@/lib/api/sessions'
 import { clientAPI } from '@/lib/api/clients'
@@ -11,19 +11,14 @@ import { mockSessions, mockWorkouts } from '@/lib/test-data/sessions'
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [clients, setClients] = useState<Client[]>([])
-  const [workouts, setWorkouts] = useState<any[]>([]) // TODO: Add workout types
+  const [workouts, setWorkouts] = useState<{ id: string; name: string; description: string | null; duration_minutes: number | null; }[]>([]) // TODO: Add workout types
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingSession, setEditingSession] = useState<Session | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [filters, setFilters] = useState<SessionFilters>({})
 
-  // Load initial data
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       console.log('Loading sessions data...')
       setIsLoading(true)
@@ -43,15 +38,20 @@ export default function SessionsPage() {
       console.log('Using mock data for development...')
       setSessions(mockSessions)
       setClients([
-        { id: 'client-1', first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', phone: '+1234567890', avatar_url: null, tenant_id: 'tenant-1', date_of_birth: null, height_cm: null, weight_kg: null, goals: null, notes: null, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-        { id: 'client-2', first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', phone: '+1234567891', avatar_url: null, tenant_id: 'tenant-1', date_of_birth: null, height_cm: null, weight_kg: null, goals: null, notes: null, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-        { id: 'client-3', first_name: 'Mike', last_name: 'Johnson', email: 'mike.johnson@example.com', phone: '+1234567892', avatar_url: null, tenant_id: 'tenant-1', date_of_birth: null, height_cm: null, weight_kg: null, goals: null, notes: null, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' }
+        { id: 'client-1', first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', phone: '+1234567890', avatar_url: undefined, tenant_id: 'tenant-1', date_of_birth: undefined, height_cm: undefined, weight_kg: undefined, goals: undefined, notes: undefined, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+        { id: 'client-2', first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com', phone: '+1234567891', avatar_url: undefined, tenant_id: 'tenant-1', date_of_birth: undefined, height_cm: undefined, weight_kg: undefined, goals: undefined, notes: undefined, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+        { id: 'client-3', first_name: 'Mike', last_name: 'Johnson', email: 'mike.johnson@example.com', phone: '+1234567892', avatar_url: undefined, tenant_id: 'tenant-1', date_of_birth: undefined, height_cm: undefined, weight_kg: undefined, goals: undefined, notes: undefined, is_active: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' }
       ])
       setWorkouts(mockWorkouts)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [filters])
+
+  // Load initial data
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleCreateSession = async (data: SessionFormData) => {
     try {
@@ -131,7 +131,7 @@ export default function SessionsPage() {
   }
 
   const handleFilter = async (status: string) => {
-    const newFilters = { ...filters, status: status === 'all' ? undefined : status as any }
+    const newFilters = { ...filters, status: status === 'all' ? undefined : status as 'scheduled' | 'in_progress' | 'completed' | 'cancelled' }
     setFilters(newFilters)
     
     try {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, Plus, Search, Filter, MoreVertical, Trash2, UserCheck, UserX } from 'lucide-react'
+import { Users, Plus, Trash2, UserCheck, UserX } from 'lucide-react'
 import { ClientCard, ClientFormModal, ClientStats, ClientFilters } from '@/components/clients'
 import { clientAPI } from '@/lib/api/clients'
 import { Client, CreateClientData, UpdateClientData, ClientStats as ClientStatsType } from '@/lib/types/client'
@@ -179,9 +179,6 @@ export default function ClientsPage() {
     )
   }
 
-  const selectAllClients = () => {
-    setSelectedClients(filteredClients.map(client => client.id))
-  }
 
   const clearSelection = () => {
     setSelectedClients([])

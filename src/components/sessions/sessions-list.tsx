@@ -5,7 +5,7 @@ import { Session } from '@/lib/types/session'
 import { SessionCard } from './session-card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Calendar, Plus } from 'lucide-react'
+import { Search, Calendar, Plus } from 'lucide-react'
 
 interface SessionsListProps {
   sessions: Session[]

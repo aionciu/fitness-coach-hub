@@ -249,7 +249,7 @@ export function StepNavigation({
   nextDisabled = false,
   loading = false
 }: StepNavigationProps) {
-  const { currentStep, nextStep, prevStep, canGoNext, canGoPrev, steps } = useStepFlow()
+  const { currentStep, nextStep, prevStep, canGoPrev, steps } = useStepFlow()
 
   const handleBack = () => {
     if (onBack) {

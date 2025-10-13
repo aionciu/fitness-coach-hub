@@ -9,7 +9,6 @@ import {
   StepFlow, 
   StepIndicator, 
   StepNavigation, 
-  StepContent, 
   useStepFlow 
 } from '@/components/ui/step-flow'
 import { createClientClient } from '@/lib/supabase'
@@ -49,16 +48,6 @@ export default function OnboardingPage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleNext = () => {
-    const { currentStep } = useStepFlow()
-    if (currentStep === 0 && formData.fullName.trim()) {
-      // Move to next step
-    } else if (currentStep === 1 && formData.tenantName.trim()) {
-      // Move to next step
-    } else if (currentStep === 2 && formData.acceptedTerms) {
-      handleComplete()
-    }
-  }
 
   const handleComplete = async () => {
     if (!user || !formData.fullName.trim() || !formData.tenantName.trim() || !formData.acceptedTerms) {
@@ -196,8 +185,6 @@ export default function OnboardingPage() {
   }
 
   const BusinessSetupStep = () => {
-    const { prevStep } = useStepFlow()
-    
     return (
       <div className="space-y-6">
         <div className="text-center">

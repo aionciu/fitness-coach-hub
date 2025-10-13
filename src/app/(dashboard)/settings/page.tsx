@@ -7,13 +7,10 @@ import { Button } from '@/components/ui/button'
 import { 
   User, 
   Building2, 
-  Mail, 
-  Palette, 
   Bell, 
   Shield, 
   Save,
   Edit3,
-  Check,
   X
 } from 'lucide-react'
 
@@ -39,7 +36,7 @@ export default function SettingsPage() {
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(prev[parent as keyof typeof prev] as Record<string, unknown>),
           [child]: value
         }
       }))

@@ -1,8 +1,8 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { Users, UserCheck, UserX, UserPlus, TrendingUp } from 'lucide-react'
-import { ClientStats } from '@/lib/types/client'
+import { Users, UserCheck, UserX, UserPlus } from 'lucide-react'
+import type { ClientStats } from '@/lib/types/client'
 
 interface ClientStatsProps {
   stats: ClientStats

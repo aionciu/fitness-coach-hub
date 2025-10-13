@@ -70,7 +70,7 @@ export class ClientAPI {
       // Filter out undefined values to avoid database errors
       const cleanedClientData = Object.fromEntries(
         Object.entries({ ...clientData, tenant_id: userData.tenant_id }).filter(
-          ([_, value]) => value !== undefined && value !== ''
+          ([, value]) => value !== undefined && value !== ''
         )
       )
       

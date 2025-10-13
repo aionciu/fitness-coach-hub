@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PhoneInput } from '@/components/ui/phone-input'
-import { X, User, Mail, Calendar, Target, FileText, Ruler, Weight } from 'lucide-react'
+import { X, User, Mail, Calendar, Target, Ruler } from 'lucide-react'
 import { Client, CreateClientData, UpdateClientData } from '@/lib/types/client'
 
 interface ClientFormModalProps {

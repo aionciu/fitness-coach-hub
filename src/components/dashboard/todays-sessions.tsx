@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar, Clock, User, Play, CheckCircle, XCircle, AlertCircle, Dumbbell } from 'lucide-react'
+import { Calendar, Clock, Play, CheckCircle, XCircle, AlertCircle, Dumbbell } from 'lucide-react'
 import { sessionAPI } from '@/lib/api/sessions'
 import { Session } from '@/lib/types/session'
-import { format, isToday, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 
 export function TodaysSessions() {
@@ -91,7 +91,7 @@ export function TodaysSessions() {
             phone: '+1234567891',
             avatar_url: null
           },
-          workout: null
+          workout: undefined
         }
       ])
     } finally {

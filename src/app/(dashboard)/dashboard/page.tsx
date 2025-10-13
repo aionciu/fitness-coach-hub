@@ -1,8 +1,7 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, Dumbbell, TrendingUp, BarChart3, Calendar } from 'lucide-react'
+import { Users, Dumbbell, TrendingUp, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { TodaysSessions, DashboardStats } from '@/components/dashboard'
 
