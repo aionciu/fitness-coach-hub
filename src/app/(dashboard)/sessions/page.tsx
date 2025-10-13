@@ -156,7 +156,7 @@ export default function SessionsPage() {
   }
 
   return (
-    <div className="space-y-6 lg:mt-4">
+    <div className="max-w-4xl mx-auto px-4 space-y-6 lg:mt-4">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
