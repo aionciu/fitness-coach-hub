@@ -45,8 +45,8 @@ async function demonstrateMockClient() {
 
     // 3. Query sessions
     console.log('\n2. Querying all sessions...')
-    const queryResult = await mockClient.from('sessions').select()
-    console.log(`✅ Found ${queryResult.data?.length || 0} sessions`)
+    const queryResult = await mockClient.from('sessions').select().single()
+    console.log(`✅ Found session: ${queryResult.data ? 'Yes' : 'No'}`)
 
     // 4. Update session
     console.log('\n3. Updating session status...')
@@ -72,8 +72,8 @@ async function demonstrateMockClient() {
 
     // 7. Show final database state
     console.log('\n📊 Final Database State:')
-    const finalSessions = await mockClient.from('sessions').select()
-    console.log(`- Sessions: ${finalSessions.data?.length || 0}`)
+    const finalSessions = await mockClient.from('sessions').select().single()
+    console.log(`- Sessions: ${finalSessions.data ? 'Found' : 'None'}`)
 
     console.log('\n🎉 Mock Supabase Client demonstration completed successfully!')
     console.log('\n💡 Key Features Demonstrated:')
